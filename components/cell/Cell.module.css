@@ -1,0 +1,15 @@
+.cell {
+    height: 50px;
+    width: 50px;
+    background: lightgray;
+    padding: 0;
+}
+
+.cell:hover {
+    background: darkgray;
+}
+
+.cell:disabled {
+    background: darkgray;
+    color: white;
+}
