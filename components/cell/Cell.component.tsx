@@ -1,12 +1,7 @@
 import React from "react";
 import styles from './Cell.module.css';
 
-type CellProps = {
-    type: string;
-    displayText: string;
-}
-
-const Cell: React.FunctionComponent<CellProps> = (props) => {
+const Cell = (props: any) => {
     const [hidden, setHidden] = React.useState(true)
 
     const toggleHidden = (event: any) => {
