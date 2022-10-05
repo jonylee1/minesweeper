@@ -3,6 +3,11 @@
     width: 50px;
     background: lightgray;
     padding: 0;
+    border: 3px outset;
+}
+
+.clicked {
+    border: 3px inset;
 }
 
 .cell:hover {
