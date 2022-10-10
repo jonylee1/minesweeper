@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from './Cell.module.css';
 
 enum CELL_TYPE {
@@ -7,19 +7,24 @@ enum CELL_TYPE {
 }
 
 type CellProps = {
+    handleClick: (a: number, b: number) => void;
     type: string;
     displayText: string;
     x: number;
     y: number;
+    
 }
 
-const Cell: React.FunctionComponent<CellProps> = (props) => {
+const Cell = (props: CellProps) => {
     const [visible, setVisible] = React.useState(false)
 
-    const handleClick = (event: any) => {
+
+    const localHandleClick = (event: any) => {
+        console.log(`localHandleClick for cell ${props.x} x ${props.y}`);
         setVisible(!visible);
         event.currentTarget.disabled = true;
         event.currentTarget.classList.add(styles.clicked);
+        props.handleClick(props.x, props.y);
     }
 
     const handleRightClick = (event: any) => {
@@ -27,8 +32,12 @@ const Cell: React.FunctionComponent<CellProps> = (props) => {
         event.preventDefault();
     }
 
+    // useEffect(() => {
+    //     console.log(`cell ${props.x} x ${props.y} use effect triggers`);
+    // });
+
     return (
-        <button className={styles.cell} onClick={handleClick} onContextMenu={handleRightClick}>{visible ? props.displayText : ''}</button>
+        <button className={styles.cell} onClick={localHandleClick} onContextMenu={handleRightClick}>{visible ? props.displayText : ''}</button>
     )
 }
 
