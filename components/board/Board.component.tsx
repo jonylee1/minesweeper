@@ -34,7 +34,7 @@ let boardArray: string[][] = [
                             ];
 
 const Board = () => {
-    const [generated, setGenerated] = React.useState(false);
+    let gameStarted = false;
 
     /**
      * Should be called after every cell is clicked.
@@ -43,8 +43,9 @@ const Board = () => {
      */
     const checkBoardState = (row: number, column: number) => {
         console.log(`checkboardstate ${row} x ${column}`);
-        console.log(`checkboardstate/generated: ${generated}`);
-        if (generated) {
+        console.log(`checkboardstate/generated: ${gameStarted}`);
+        if (gameStarted) {
+            console.log(`checking cell ${row} x ${column}`);
             // reveal the cell
             // if (boardArray[row][column] === 'x') {
             //     console.log('lose');
@@ -52,7 +53,7 @@ const Board = () => {
             //     console.log('win');
             // }
         } else {
-            setGenerated(true);
+            gameStarted = true;
             // generate board
             generateBoard(row, column);
             checkBoardState(row, column);
@@ -60,7 +61,7 @@ const Board = () => {
     }
 
     useEffect(() => {
-        
+
     })
 
     return (
