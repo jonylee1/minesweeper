@@ -8,7 +8,7 @@ enum CELL_TYPE {
 
 type CellProps = {
     handleClick: (a: number, b: number) => void;
-    type: string;
+    type: 'number' | 'mine';
     displayText: string;
     x: number;
     y: number;
@@ -20,7 +20,6 @@ const Cell = (props: CellProps) => {
 
 
     const localHandleClick = (event: any) => {
-        console.log(`localHandleClick for cell ${props.x} x ${props.y}`);
         setVisible(!visible);
         event.currentTarget.disabled = true;
         event.currentTarget.classList.add(styles.clicked);
