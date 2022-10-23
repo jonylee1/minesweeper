@@ -1,32 +1,28 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import Cell from "../cell/Cell.component";
 import styles from './Board.module.css';
 
 export type CellState = {
     value: string;
     isRevealed: boolean;
+    isDisabled: boolean;
 }
 
 
 // holds the mines and numbers in our board
-// TODO: replace string with CellState
-// we need a way to track our win condition
-// do we replace the array of strings with a strongly typed CellState?
-// win condition can be checked by iterating through the array, counting which cells are not revealed, and checking it against the minesToGenerate
-let boardArray: string[][] = [
-    ['0', '0', '0', '0', '0'],
-    ['0', '0', '0', '0', '0'],
-    ['0', '0', '0', '0', '0'],
-    ['0', '0', '0', '0', '0'],
-    ['0', '0', '0', '0', '0']
-];
-
-const BoardState = React.createContext(boardArray);
+let boardArray: CellState[][] = Array.from({ length: 9 }, () => (
+                                    Array.from({ length: 9 }, () => (
+                                        ({value: '0', isRevealed: false, isDisabled: false})
+                                    ))
+                                ));
 
 const Board = () => {
+    // TODO: learn how to explain React Hooks
     const [board, setBoard] = useState(boardArray);
     const [generated, setGenerated] = useState(false);
-    const [minesToGenerate, setMinesToGenerate] = useState(5);
+    const [minesToGenerate, setMinesToGenerate] = useState(10);
+    const [nonMineCells, setNonMineCells] = useState(81 - minesToGenerate);
+    const [gameEnded, setGameEnded] = useState(false);
 
     /**
      * Should be called after the user clicks a cell for the first time
@@ -37,17 +33,17 @@ const Board = () => {
 
         do {
             // randomly generate a row and column
-            let randRow = Math.floor(Math.random() * 4);
-            let randColumn = Math.floor(Math.random() * 4);
-            if (!(randRow === row && randColumn === column) && boardArray[randRow][randColumn] !== 'x') {
+            let randRow = Math.floor(Math.random() * 8);
+            let randColumn = Math.floor(Math.random() * 8);
+            if (!(randRow === row && randColumn === column) && boardArray[randRow][randColumn].value !== 'x') {
                 // it is not the cell we clicked
                 mineCounter++;
-                boardArray[randRow][randColumn] = 'x'
+                boardArray[randRow][randColumn].value = 'x'
                 // increment the counter of the cells around it
                 for (var genRow = randRow - 1; genRow < randRow + 2; genRow++) {
                     for (var genColumn = randColumn - 1; genColumn < randColumn + 2; genColumn++) {
-                        if ((genRow >= 0 && genRow < 5) && (genColumn >= 0 && genColumn < 5) && (boardArray[genRow][genColumn] !== 'x')) {
-                            boardArray[genRow][genColumn] = (parseInt(boardArray[genRow][genColumn]) + 1).toString();
+                        if ((genRow >= 0 && genRow < 9) && (genColumn >= 0 && genColumn < 9) && (boardArray[genRow][genColumn].value !== 'x')) {
+                            boardArray[genRow][genColumn].value = (parseInt(boardArray[genRow][genColumn].value) + 1).toString();
                         }
                     }
                 }
@@ -63,40 +59,105 @@ const Board = () => {
     const checkBoardState = (row: number, column: number) => {
         if (!generated) {
             generateBoard(row, column);
+            boardArray[row][column].isRevealed = true;
             setBoard([...boardArray]);
+            // if currentCell = 0, reveal surrounding cells
+            if (boardArray[row][column].value === '0') {
+                revealSurroundingCells(row, column);
+            }
             setGenerated(true);
         } else {
-            console.log('check win/loss scenario');
-            const cellValue = boardArray[row][column];
+            // check win/lose
+            const cellValue = boardArray[row][column].value;
+            boardArray[row][column].isRevealed = true;
+            setBoard([...boardArray]);
             if (cellValue === 'x') {
-                console.log('LOSE');
+                // lost
+                setGameEnded(true);
+
+                // disable the board
+                for (let iterRow = 0; iterRow < 9; iterRow++) {
+                    for (let iterColumn = 0; iterColumn < 9; iterColumn++) {
+                        boardArray[iterRow][iterColumn].isDisabled = true;
+                        // reveal the mines
+                        if (boardArray[iterRow][iterColumn].value === 'x') {
+                            boardArray[iterRow][iterColumn].isRevealed = true;
+                        }
+                    }
+                }
             } else {
-                // add clicked cell to list of clicked cells
+                // if currentCell = 0, reveal surrounding cells
+                if (cellValue === '0') {
+                    revealSurroundingCells(row, column);
+                }
+
+                // check if all non-mines are clicked
+                let revealedCells = 0;
+                for (let row = 0; row < 9; row++) {
+                    for (let column = 0; column < 9; column++) {
+                        if (boardArray[row][column].value !== 'x' && boardArray[row][column].isRevealed === false) {
+                            revealedCells++;
+                        }
+                    }
+                }
+                if ((revealedCells - minesToGenerate) === nonMineCells) {
+                    // win
+                    setGameEnded(true);
+                }
             }
-            // if only mines remain unrevealed, win
-            // if currentCell = 0, reveal surrounding cells
         }
-        // TODO: execute a click function on an arbitrary cell for 0-cascade
+    }
+
+    const revealSurroundingCells = (row: number, column: number) => {
+        for (var genRow = row - 1; genRow < row + 2; genRow++) {
+            for (var genColumn = column - 1; genColumn < column + 2; genColumn++) {
+                // check that it is within the bounds and it is not already revealed
+                if ((genRow >= 0 && genRow < 9) && (genColumn >= 0 && genColumn < 9) && (!boardArray[genRow][genColumn].isRevealed)) {
+                    boardArray[genRow][genColumn].isRevealed = true;
+                    if (boardArray[genRow][genColumn].value === '0') {
+                        revealSurroundingCells(genRow, genColumn);
+                    }
+                }
+            }
+        }
     }
 
     const initializeBoard = () => {
-        return Array.from({ length: 5 }, (_, row) => (
+        return Array.from({ length: 9 }, (_, row) => (
             <div key={`${row}`} className={styles.row}>{
-            Array.from({ length: 5}, (_, column) => (
+            Array.from({ length: 9}, (_, column) => (
                 <Cell 
                     handleClick={checkBoardState}
-                    key={`${row * 5 + column}`}
+                    key={`${row * 9 + column}`}
                     type='number'
-                    displayText={board[row][column]}
-                    x={column}
-                    y={row}
+                    displayText={board[row][column].value}
+                    row={row}
+                    column={column}
+                    revealed={board[row][column].isRevealed}
+                    disabled={board[row][column].isDisabled}
                 />
             ))}</div>
         ))
     }
 
+    const resetBoard = () => {
+        for (let row = 0; row < 9; row++) {
+            for (let column = 0; column < 9; column++) {
+                boardArray[row][column].value = '0';
+                boardArray[row][column].isDisabled = false;
+                boardArray[row][column].isRevealed = false;
+                setBoard(boardArray);
+                setGenerated(false);
+            }
+        }
+    }
+
     return (
-        <div className={styles.board}>{initializeBoard()}</div>
+        <div className={styles.board}>
+            <div>{initializeBoard()}</div>
+            <button style={{display: gameEnded ? 'block' : 'none' }} className={styles.button} onClick={resetBoard}>Reset Game</button>
+        </div>
+        
     );
 }
 

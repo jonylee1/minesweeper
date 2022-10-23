@@ -4,6 +4,7 @@
     background: lightgray;
     padding: 0;
     border: 3px outset;
+    color: white;
 }
 
 .clicked {
@@ -14,7 +15,6 @@
     background: darkgray;
 }
 
-.cell:disabled {
+.clicked.cell:disabled {
     background: darkgray;
-    color: white;
 }

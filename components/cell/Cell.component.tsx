@@ -10,24 +10,25 @@ type CellProps = {
     handleClick: (a: number, b: number) => void;
     type: 'number' | 'mine';
     displayText: string;
-    x: number;
-    y: number;
-    
+    revealed: boolean;
+    disabled: boolean;
+    row: number;
+    column: number;
 }
 
 const Cell = (props: CellProps) => {
-    const [visible, setVisible] = React.useState(false)
 
+    // destructuring variables from props
+    const {handleClick, type, displayText, revealed, disabled, row, column} = props;
 
     const localHandleClick = (event: any) => {
-        setVisible(!visible);
-        event.currentTarget.disabled = true;
-        event.currentTarget.classList.add(styles.clicked);
-        props.handleClick(props.x, props.y);
+        console.log('clicked')
+        handleClick(row, column);
     }
 
     const handleRightClick = (event: any) => {
         console.log('right-click captured');
+        // TODO: cycle through flag and question mark
         event.preventDefault();
     }
 
@@ -36,7 +37,9 @@ const Cell = (props: CellProps) => {
     // });
 
     return (
-        <button className={styles.cell} onClick={localHandleClick} onContextMenu={handleRightClick}>{visible ? props.displayText : ''}</button>
+        <button className={`${styles.cell} ${revealed ? styles.clicked : null}`} disabled={revealed || disabled} onClick={localHandleClick} onContextMenu={handleRightClick}>
+            {revealed ? displayText : ''}
+        </button>
     )
 }
 
