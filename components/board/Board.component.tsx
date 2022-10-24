@@ -21,7 +21,7 @@ const Board = () => {
     const [board, setBoard] = useState(boardArray);
     const [generated, setGenerated] = useState(false);
     const [minesToGenerate, setMinesToGenerate] = useState(10);
-    const [nonMineCells, setNonMineCells] = useState(81 - minesToGenerate);
+    const [totalCells, setTotalCells] = useState(81);
     const [gameEnded, setGameEnded] = useState(false);
 
     /**
@@ -95,13 +95,15 @@ const Board = () => {
                 let revealedCells = 0;
                 for (let row = 0; row < 9; row++) {
                     for (let column = 0; column < 9; column++) {
-                        if (boardArray[row][column].value !== 'x' && boardArray[row][column].isRevealed === false) {
+                        if (boardArray[row][column].value !== 'x' && boardArray[row][column].isRevealed === true) {
                             revealedCells++;
                         }
                     }
                 }
-                if ((revealedCells - minesToGenerate) === nonMineCells) {
+
+                if ((revealedCells + minesToGenerate) === totalCells) {
                     // win
+                    alert('you won!');
                     setGameEnded(true);
                 }
             }
@@ -148,6 +150,7 @@ const Board = () => {
                 boardArray[row][column].isRevealed = false;
                 setBoard(boardArray);
                 setGenerated(false);
+                setGameEnded(false);
             }
         }
     }

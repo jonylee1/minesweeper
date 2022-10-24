@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from './Cell.module.css';
 
 enum CELL_TYPE {
@@ -17,28 +17,34 @@ type CellProps = {
 }
 
 const Cell = (props: CellProps) => {
+    const [statusMarker] = useState(['', '🚩', '❓']);
+    const [status, setStatus] = useState(statusMarker[0]);
+    const [statusIncrement, setStatusIncrement] = useState(0);
 
     // destructuring variables from props
     const {handleClick, type, displayText, revealed, disabled, row, column} = props;
 
     const localHandleClick = (event: any) => {
-        console.log('clicked')
+        event.preventDefault();
+        if (status === statusMarker[1]) return;
         handleClick(row, column);
     }
 
     const handleRightClick = (event: any) => {
-        console.log('right-click captured');
-        // TODO: cycle through flag and question mark
         event.preventDefault();
+        setStatusIncrement((statusIncrement + 1) % 3);
     }
 
-    // useEffect(() => {
-    //     console.log(`cell ${props.x} x ${props.y} use effect triggers`);
-    // });
+    useEffect(() => {
+        setStatus(statusMarker[statusIncrement]);
+        if (revealed || disabled) {
+            setStatusIncrement(0);
+        }
+    },[disabled, revealed, statusMarker, statusIncrement]);
 
     return (
         <button className={`${styles.cell} ${revealed ? styles.clicked : null}`} disabled={revealed || disabled} onClick={localHandleClick} onContextMenu={handleRightClick}>
-            {revealed ? displayText : ''}
+            {revealed ? displayText : status}
         </button>
     )
 }
