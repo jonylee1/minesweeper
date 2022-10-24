@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styles from './Cell.module.css';
 
-enum CELL_TYPE {
-    NUMBER,
-    MINE
-}
-
 type CellProps = {
     handleClick: (a: number, b: number) => void;
-    type: 'number' | 'mine';
     displayText: string;
     revealed: boolean;
     disabled: boolean;
@@ -22,7 +16,7 @@ const Cell = (props: CellProps) => {
     const [statusIncrement, setStatusIncrement] = useState(0);
 
     // destructuring variables from props
-    const {handleClick, type, displayText, revealed, disabled, row, column} = props;
+    const {handleClick, displayText, revealed, disabled, row, column} = props;
 
     const localHandleClick = (event: any) => {
         event.preventDefault();

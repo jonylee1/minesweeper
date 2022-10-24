@@ -8,7 +8,6 @@ export type CellState = {
     isDisabled: boolean;
 }
 
-
 // holds the mines and numbers in our board
 let boardArray: CellState[][] = Array.from({ length: 9 }, () => (
                                     Array.from({ length: 9 }, () => (
@@ -17,7 +16,6 @@ let boardArray: CellState[][] = Array.from({ length: 9 }, () => (
                                 ));
 
 const Board = () => {
-    // TODO: learn how to explain React Hooks
     const [board, setBoard] = useState(boardArray);
     const [generated, setGenerated] = useState(false);
     const [minesToGenerate, setMinesToGenerate] = useState(10);
@@ -131,7 +129,6 @@ const Board = () => {
                 <Cell 
                     handleClick={checkBoardState}
                     key={`${row * 9 + column}`}
-                    type='number'
                     displayText={board[row][column].value}
                     row={row}
                     column={column}
